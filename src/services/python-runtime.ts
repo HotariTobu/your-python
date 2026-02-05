@@ -1,32 +1,32 @@
-import wasmUrl from "../wasm/rustpython_wasm_bg.wasm";
 import init, { pyExec } from "../wasm/rustpython_wasm.js";
+import wasmUrl from "../wasm/rustpython_wasm_bg.wasm";
 
 export type RuntimeState = "loading" | "ready" | "error";
 
 export interface ExecutionResult {
-  stdout: string;
-  error: string | null;
+	stdout: string;
+	error: string | null;
 }
 
 let initialized = false;
 let initPromise: Promise<void> | null = null;
 
 export async function initPythonRuntime(): Promise<void> {
-  if (initialized) return;
+	if (initialized) return;
 
-  if (initPromise) return initPromise;
+	if (initPromise) return initPromise;
 
-  initPromise = (async () => {
-    await init({ module_or_path: wasmUrl });
-    initialized = true;
-  })();
+	initPromise = (async () => {
+		await init({ module_or_path: wasmUrl });
+		initialized = true;
+	})();
 
-  return initPromise;
+	return initPromise;
 }
 
 function buildPrelude(inputs: string[]): string {
-  const inputsLiteral = JSON.stringify(inputs);
-  return `\
+	const inputsLiteral = JSON.stringify(inputs);
+	return `\
 import browser
 import builtins
 
@@ -46,34 +46,34 @@ builtins.input = _custom_input
 }
 
 export function executePython(code: string, inputs: string[]): ExecutionResult {
-  if (!initialized) {
-    return { stdout: "", error: "Python runtime not initialized" };
-  }
+	if (!initialized) {
+		return { stdout: "", error: "Python runtime not initialized" };
+	}
 
-  let stdout = "";
-  let error: string | null = null;
+	let stdout = "";
+	let error: string | null = null;
 
-  const fullCode = buildPrelude(inputs) + code;
+	const fullCode = buildPrelude(inputs) + code;
 
-  try {
-    pyExec(fullCode, {
-      stdout: (output: string) => {
-        stdout += output;
-      },
-    });
-  } catch (err) {
-    if (err instanceof WebAssembly.RuntimeError) {
-      const globalError = (globalThis as { __RUSTPYTHON_ERROR?: string })
-        .__RUSTPYTHON_ERROR;
-      error = globalError ?? String(err);
-    } else {
-      error = String(err);
-    }
-  }
+	try {
+		pyExec(fullCode, {
+			stdout: (output: string) => {
+				stdout += output;
+			},
+		});
+	} catch (err) {
+		if (err instanceof WebAssembly.RuntimeError) {
+			const globalError = (globalThis as { __RUSTPYTHON_ERROR?: string })
+				.__RUSTPYTHON_ERROR;
+			error = globalError ?? String(err);
+		} else {
+			error = String(err);
+		}
+	}
 
-  return { stdout, error };
+	return { stdout, error };
 }
 
 export function isRuntimeReady(): boolean {
-  return initialized;
+	return initialized;
 }

@@ -1,9 +1,9 @@
-import { useState, useRef, useCallback } from "preact/hooks";
-import { usePython } from "./hooks/use-python";
+import { useCallback, useRef, useState } from "preact/hooks";
 import { CodeEditor } from "./components/code-editor";
 import { InputPanel } from "./components/input-panel";
-import { RunButton } from "./components/run-button";
 import { OutputPanel } from "./components/output-panel";
+import { RunButton } from "./components/run-button";
+import { usePython } from "./hooks/use-python";
 
 const DEFAULT_CODE = `# Welcome to Your Python!
 # Write your Python code here and click Run.
@@ -20,52 +20,52 @@ for i in range(1, 6):
 `;
 
 export function App() {
-  const { state, execute } = usePython();
-  const codeRef = useRef(DEFAULT_CODE);
-  const [stdin, setStdin] = useState("");
-  const [output, setOutput] = useState({ stdout: "", error: null as string | null });
+	const { state, execute } = usePython();
+	const codeRef = useRef(DEFAULT_CODE);
+	const [stdin, setStdin] = useState("");
+	const [output, setOutput] = useState({
+		stdout: "",
+		error: null as string | null,
+	});
 
-  const handleCodeChange = useCallback((value: string) => {
-    codeRef.current = value;
-  }, []);
+	const handleCodeChange = useCallback((value: string) => {
+		codeRef.current = value;
+	}, []);
 
-  const handleRun = useCallback(() => {
-    if (state !== "ready") return;
-    const inputs = stdin.split("\n");
-    if (inputs.at(-1) === "") inputs.pop();
-    const result = execute(codeRef.current, inputs);
-    setOutput(result);
-  }, [state, stdin, execute]);
+	const handleRun = useCallback(() => {
+		if (state !== "ready") return;
+		const inputs = stdin.split("\n");
+		if (inputs.at(-1) === "") inputs.pop();
+		const result = execute(codeRef.current, inputs);
+		setOutput(result);
+	}, [state, stdin, execute]);
 
-  return (
-    <div class="min-h-screen bg-gray-50 py-8">
-      <div class="w-200 mx-auto space-y-4">
-        <header>
-          <h1 class="text-3xl font-bold text-gray-900">Your Python</h1>
-          <p class="text-gray-600 mt-2">
-            A browser-based Python execution environment
-          </p>
-        </header>
+	return (
+		<div class="min-h-screen bg-gray-50 py-8">
+			<div class="w-200 mx-auto space-y-4">
+				<header>
+					<h1 class="text-3xl font-bold text-gray-900">Your Python</h1>
+					<p class="text-gray-600 mt-2">
+						A browser-based Python execution environment
+					</p>
+				</header>
 
-        <section>
-          <CodeEditor
-            initialValue={DEFAULT_CODE}
-            onChange={handleCodeChange}
-          />
-        </section>
+				<section>
+					<CodeEditor initialValue={DEFAULT_CODE} onChange={handleCodeChange} />
+				</section>
 
-        <section>
-          <InputPanel value={stdin} onChange={setStdin} />
-        </section>
+				<section>
+					<InputPanel value={stdin} onChange={setStdin} />
+				</section>
 
-        <section class="grid">
-          <RunButton onClick={handleRun} state={state} />
-        </section>
+				<section class="grid">
+					<RunButton onClick={handleRun} state={state} />
+				</section>
 
-        <section>
-          <OutputPanel stdout={output.stdout} error={output.error} />
-        </section>
-      </div>
-    </div>
-  );
+				<section>
+					<OutputPanel stdout={output.stdout} error={output.error} />
+				</section>
+			</div>
+		</div>
+	);
 }

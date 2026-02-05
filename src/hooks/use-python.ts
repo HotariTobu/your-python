@@ -1,34 +1,37 @@
-import { useState, useEffect, useCallback } from "preact/hooks";
+import { useCallback, useEffect, useState } from "preact/hooks";
 import {
-  RuntimeState,
-  ExecutionResult,
-  initPythonRuntime,
-  executePython,
+	type ExecutionResult,
+	executePython,
+	initPythonRuntime,
+	type RuntimeState,
 } from "../services/python-runtime";
 
 export interface UsePythonResult {
-  state: RuntimeState;
-  execute: (code: string, inputs: string[]) => ExecutionResult;
+	state: RuntimeState;
+	execute: (code: string, inputs: string[]) => ExecutionResult;
 }
 
 export function usePython(): UsePythonResult {
-  const [state, setState] = useState<RuntimeState>("loading");
+	const [state, setState] = useState<RuntimeState>("loading");
 
-  useEffect(() => {
-    initPythonRuntime()
-      .then(() => setState("ready"))
-      .catch((err) => {
-        console.error("Failed to initialize Python runtime:", err);
-        setState("error");
-      });
-  }, []);
+	useEffect(() => {
+		initPythonRuntime()
+			.then(() => setState("ready"))
+			.catch((err) => {
+				console.error("Failed to initialize Python runtime:", err);
+				setState("error");
+			});
+	}, []);
 
-  const execute = useCallback((code: string, inputs: string[]): ExecutionResult => {
-    if (state !== "ready") {
-      return { stdout: "", error: "Python runtime not ready" };
-    }
-    return executePython(code, inputs);
-  }, [state]);
+	const execute = useCallback(
+		(code: string, inputs: string[]): ExecutionResult => {
+			if (state !== "ready") {
+				return { stdout: "", error: "Python runtime not ready" };
+			}
+			return executePython(code, inputs);
+		},
+		[state],
+	);
 
-  return { state, execute };
+	return { state, execute };
 }
