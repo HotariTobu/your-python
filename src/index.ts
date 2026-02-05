@@ -1,5 +1,15 @@
 import { serve } from "bun";
+import { networkInterfaces } from "os";
 import index from "./index.html";
+
+function getLocalIPAddresses(): string[] {
+  return Object.values(networkInterfaces())
+    .flat()
+    .filter((addr): addr is NonNullable<typeof addr> =>
+      addr !== undefined && addr.family === "IPv4" && !addr.internal
+    )
+    .map((addr) => addr.address);
+}
 
 const server = serve({
   routes: {
@@ -16,4 +26,9 @@ const server = serve({
   },
 });
 
-console.log(`🚀 Server running at ${server.url}`);
+const { port } = server;
+console.log(`🚀 Server running at`);
+console.log(`   Local:   http://localhost:${port}`);
+for (const ip of getLocalIPAddresses()) {
+  console.log(`   Network: http://${ip}:${port}`);
+}
