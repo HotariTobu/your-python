@@ -1,17 +1,33 @@
+export type PythonState = "loading" | "ready" | "error";
+
 export interface RunButtonProps {
   onClick: () => void;
-  disabled?: boolean;
+  state: PythonState;
 }
 
-export function RunButton({ onClick, disabled }: RunButtonProps) {
+export function RunButton({ onClick, state }: RunButtonProps) {
+  const isDisabled = state !== "ready";
+
+  const buttonContent = {
+    loading: "Loading...",
+    error: "Error",
+    ready: "Run",
+  }[state];
+
+  const buttonClass = {
+    loading: "bg-blue-500 cursor-wait",
+    error: "bg-red-500 cursor-not-allowed",
+    ready: "bg-green-600 hover:bg-green-700",
+  }[state];
+
   return (
     <button
       type="button"
       onClick={onClick}
-      disabled={disabled}
-      class="px-6 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+      disabled={isDisabled}
+      class={`px-6 py-2 text-white font-medium rounded-md transition-colors disabled:opacity-80 ${buttonClass}`}
     >
-      Run
+      {buttonContent}
     </button>
   );
 }

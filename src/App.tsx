@@ -31,21 +31,12 @@ export function App() {
 
   return (
     <div class="min-h-screen bg-gray-50 py-8">
-      <div class="w-[800px] mx-auto space-y-4">
-        <header class="text-center mb-8">
+      <div class="w-200 mx-auto space-y-4">
+        <header>
           <h1 class="text-3xl font-bold text-gray-900">Your Python</h1>
           <p class="text-gray-600 mt-2">
             A browser-based Python execution environment
           </p>
-          {state === "loading" && (
-            <p class="text-blue-600 mt-2">Loading Python runtime...</p>
-          )}
-          {state === "error" && (
-            <p class="text-red-600 mt-2">Failed to load Python runtime</p>
-          )}
-          {state === "ready" && (
-            <p class="text-green-600 mt-2">Python Ready</p>
-          )}
         </header>
 
         <section>
@@ -56,8 +47,8 @@ export function App() {
           />
         </section>
 
-        <section class="flex justify-center">
-          <RunButton onClick={handleRun} disabled={state !== "ready"} />
+        <section class="grid">
+          <RunButton onClick={handleRun} state={state} />
         </section>
 
         <section>
