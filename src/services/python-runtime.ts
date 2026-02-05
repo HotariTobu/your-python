@@ -24,7 +24,28 @@ export async function initPythonRuntime(): Promise<void> {
   return initPromise;
 }
 
-export function executePython(code: string): ExecutionResult {
+function buildPrelude(inputs: string[]): string {
+  const inputsLiteral = JSON.stringify(inputs);
+  return `\
+import browser
+import builtins
+
+_input_queue = ${inputsLiteral}
+_input_index = 0
+
+def _custom_input(prompt=""):
+    global _input_index
+    if _input_index < len(_input_queue):
+        result = _input_queue[_input_index]
+        _input_index += 1
+        return result
+    return browser.prompt(prompt)
+
+builtins.input = _custom_input
+`;
+}
+
+export function executePython(code: string, inputs: string[]): ExecutionResult {
   if (!initialized) {
     return { stdout: "", error: "Python runtime not initialized" };
   }
@@ -32,8 +53,10 @@ export function executePython(code: string): ExecutionResult {
   let stdout = "";
   let error: string | null = null;
 
+  const fullCode = buildPrelude(inputs) + code;
+
   try {
-    pyExec(code, {
+    pyExec(fullCode, {
       stdout: (output: string) => {
         stdout += output;
       },

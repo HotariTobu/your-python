@@ -8,7 +8,7 @@ import {
 
 export interface UsePythonResult {
   state: RuntimeState;
-  execute: (code: string) => ExecutionResult;
+  execute: (code: string, inputs: string[]) => ExecutionResult;
 }
 
 export function usePython(): UsePythonResult {
@@ -23,11 +23,11 @@ export function usePython(): UsePythonResult {
       });
   }, []);
 
-  const execute = useCallback((code: string): ExecutionResult => {
+  const execute = useCallback((code: string, inputs: string[]): ExecutionResult => {
     if (state !== "ready") {
       return { stdout: "", error: "Python runtime not ready" };
     }
-    return executePython(code);
+    return executePython(code, inputs);
   }, [state]);
 
   return { state, execute };

@@ -1,24 +1,15 @@
 import { useCodeMirror } from "../hooks/use-code-mirror";
 
 export interface CodeEditorProps {
-  initialValue?: string;
-  onRunRequest?: () => void;
-  getValueRef?: { current: (() => string) | null };
+  initialValue: string;
+  onChange: (value: string) => void;
 }
 
-export function CodeEditor({
-  initialValue,
-  onRunRequest,
-  getValueRef,
-}: CodeEditorProps) {
-  const { containerRef, getValue } = useCodeMirror({
+export function CodeEditor({ initialValue, onChange }: CodeEditorProps) {
+  const { containerRef } = useCodeMirror({
     initialValue,
-    onRunRequest,
+    onChange,
   });
-
-  if (getValueRef) {
-    getValueRef.current = getValue;
-  }
 
   return (
     <div

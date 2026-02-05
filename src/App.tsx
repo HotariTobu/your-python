@@ -1,33 +1,41 @@
 import { useState, useRef, useCallback } from "preact/hooks";
 import { usePython } from "./hooks/use-python";
 import { CodeEditor } from "./components/code-editor";
+import { InputPanel } from "./components/input-panel";
 import { RunButton } from "./components/run-button";
 import { OutputPanel } from "./components/output-panel";
 
 const DEFAULT_CODE = `# Welcome to Your Python!
 # Write your Python code here and click Run.
 
-def greet(name):
-    return f"Hello, {name}!"
-
-print(greet("World"))
+name = input("What is your name? ")
+print(f"Hello, {name}!")
 
 # Try some calculations
+def square(n):
+    return n ** 2
+
 for i in range(1, 6):
-    print(f"{i} squared is {i ** 2}")
+    print(f"{i} squared is {square(i)}")
 `;
 
 export function App() {
   const { state, execute } = usePython();
+  const codeRef = useRef(DEFAULT_CODE);
+  const [stdin, setStdin] = useState("");
   const [output, setOutput] = useState({ stdout: "", error: null as string | null });
-  const getValueRef = useRef<(() => string) | null>(null);
+
+  const handleCodeChange = useCallback((value: string) => {
+    codeRef.current = value;
+  }, []);
 
   const handleRun = useCallback(() => {
-    if (state !== "ready" || !getValueRef.current) return;
-    const code = getValueRef.current();
-    const result = execute(code);
+    if (state !== "ready") return;
+    const inputs = stdin.split("\n");
+    if (inputs.at(-1) === "") inputs.pop();
+    const result = execute(codeRef.current, inputs);
     setOutput(result);
-  }, [state, execute]);
+  }, [state, stdin, execute]);
 
   return (
     <div class="min-h-screen bg-gray-50 py-8">
@@ -42,9 +50,12 @@ export function App() {
         <section>
           <CodeEditor
             initialValue={DEFAULT_CODE}
-            onRunRequest={handleRun}
-            getValueRef={getValueRef}
+            onChange={handleCodeChange}
           />
+        </section>
+
+        <section>
+          <InputPanel value={stdin} onChange={setStdin} />
         </section>
 
         <section class="grid">

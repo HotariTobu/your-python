@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "preact/hooks";
+import { useEffect, useRef } from "preact/hooks";
 import { EditorView, basicSetup } from "codemirror";
 import { EditorState } from "@codemirror/state";
 import { python } from "@codemirror/lang-python";
@@ -7,13 +7,12 @@ import { indentWithTab } from "@codemirror/commands";
 import { indentUnit } from "@codemirror/language";
 
 export interface UseCodeMirrorOptions {
-  initialValue?: string;
-  onRunRequest?: () => void;
+  initialValue: string;
+  onChange: (value: string) => void;
 }
 
 export interface UseCodeMirrorResult {
   containerRef: { current: HTMLElement | null };
-  getValue: () => string;
 }
 
 const autoHeightTheme = EditorView.theme({
@@ -22,12 +21,11 @@ const autoHeightTheme = EditorView.theme({
 });
 
 export function useCodeMirror(
-  options: UseCodeMirrorOptions = {}
+  options: UseCodeMirrorOptions
 ): UseCodeMirrorResult {
-  const { initialValue = "", onRunRequest } = options;
+  const valueRef = useRef(options.initialValue);
   const containerRef = useRef<HTMLElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     if (!containerRef.current || viewRef.current) return;
@@ -38,25 +36,16 @@ export function useCodeMirror(
       indentUnit.of("    "),
       autoHeightTheme,
       keymap.of([indentWithTab]),
+      EditorView.updateListener.of((update) => {
+        if (update.docChanged) {
+          valueRef.current = update.state.doc.toString();
+          options.onChange(valueRef.current);
+        }
+      }),
     ];
 
-    if (onRunRequest) {
-      extensions.push(
-        keymap.of([
-          {
-            key: "Ctrl-Enter",
-            mac: "Cmd-Enter",
-            run: () => {
-              onRunRequest();
-              return true;
-            },
-          },
-        ])
-      );
-    }
-
     const state = EditorState.create({
-      doc: initialValue,
+      doc: valueRef.current,
       extensions,
     });
 
@@ -65,17 +54,11 @@ export function useCodeMirror(
       parent: containerRef.current,
     });
 
-    setIsInitialized(true);
-
     return () => {
       viewRef.current?.destroy();
       viewRef.current = null;
     };
-  }, [initialValue, onRunRequest]);
+  }, [options.onChange]);
 
-  const getValue = useCallback((): string => {
-    return viewRef.current?.state.doc.toString() ?? "";
-  }, [isInitialized]);
-
-  return { containerRef, getValue };
+  return { containerRef };
 }
