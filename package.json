@@ -1,5 +1,5 @@
 {
-  "name": "bun-react-template",
+  "name": "your-python",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,14 +9,17 @@
     "build": "bun run build.ts"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.10.1",
+    "@codemirror/lang-python": "^6.2.1",
+    "@codemirror/language": "^6.12.1",
+    "@codemirror/state": "^6.5.4",
+    "@codemirror/view": "^6.39.12",
     "bun-plugin-tailwind": "^0.1.2",
-    "react": "^19",
-    "react-dom": "^19",
+    "codemirror": "^6.0.2",
+    "preact": "^10.28.3",
     "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
     "@types/bun": "latest"
   }
 }

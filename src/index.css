@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+.cm-editor {
+  font-size: 14px;
+}
+
+.cm-editor .cm-content {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+}
