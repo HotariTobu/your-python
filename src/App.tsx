@@ -3,7 +3,9 @@ import { CodeEditor } from "./components/code-editor";
 import { InputPanel } from "./components/input-panel";
 import { OutputPanel } from "./components/output-panel";
 import { RunButton } from "./components/run-button";
+import { ThemeToggle } from "./components/theme-toggle";
 import { usePython } from "./hooks/use-python";
+import { useTheme } from "./hooks/use-theme";
 
 const DEFAULT_CODE = `# Welcome to Your Python!
 # Write your Python code here and click Run.
@@ -20,6 +22,7 @@ for i in range(1, 6):
 `;
 
 export function App() {
+	const { theme, preference, setPreference } = useTheme();
 	const { state, execute } = usePython();
 	const codeRef = useRef(DEFAULT_CODE);
 	const [stdin, setStdin] = useState("");
@@ -41,17 +44,29 @@ export function App() {
 	}, [state, stdin, execute]);
 
 	return (
-		<div class="min-h-screen bg-gray-50 py-8">
+		<div class="min-h-screen bg-gray-50 py-8 dark:bg-gray-900">
 			<div class="w-200 mx-auto space-y-4">
-				<header>
-					<h1 class="text-3xl font-bold text-gray-900">Your Python</h1>
-					<p class="text-gray-600 mt-2">
-						A browser-based Python execution environment
-					</p>
+				<header class="flex items-start justify-between">
+					<div>
+						<h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+							Your Python
+						</h1>
+						<p class="text-gray-600 mt-2 dark:text-gray-400">
+							A browser-based Python execution environment
+						</p>
+					</div>
+					<ThemeToggle
+						preference={preference}
+						onPreferenceChange={setPreference}
+					/>
 				</header>
 
 				<section>
-					<CodeEditor initialValue={DEFAULT_CODE} onChange={handleCodeChange} />
+					<CodeEditor
+						initialValue={DEFAULT_CODE}
+						onChange={handleCodeChange}
+						theme={theme}
+					/>
 				</section>
 
 				<section>

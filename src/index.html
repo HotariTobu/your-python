@@ -41,6 +41,13 @@
         }
       }
     </script>
+
+    <!-- Apply dark mode class before first paint to prevent flash of wrong theme -->
+    <script>
+      var preference = localStorage.getItem("theme");
+      if (preference === "dark" || (preference !== "light" && matchMedia("(prefers-color-scheme:dark)").matches))
+        document.documentElement.classList.add("dark");
+    </script>
   </head>
   <body>
     <div id="root"></div>
