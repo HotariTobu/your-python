@@ -44,43 +44,41 @@ export function App() {
 	}, [state, stdin, execute]);
 
 	return (
-		<div class="min-h-screen bg-gray-50 py-8 dark:bg-gray-900">
-			<div class="w-200 mx-auto space-y-4">
-				<header class="flex items-start justify-between">
-					<div>
-						<h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
-							Your Python
-						</h1>
-						<p class="text-gray-600 mt-2 dark:text-gray-400">
-							A browser-based Python execution environment
-						</p>
-					</div>
-					<ThemeToggle
-						preference={preference}
-						onPreferenceChange={setPreference}
-					/>
-				</header>
+		<div class="w-200 mx-auto space-y-4">
+			<header class="flex items-start justify-between">
+				<div>
+					<h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+						Your Python
+					</h1>
+					<p class="text-gray-600 mt-2 dark:text-gray-400">
+						A browser-based Python execution environment
+					</p>
+				</div>
+				<ThemeToggle
+					preference={preference}
+					onPreferenceChange={setPreference}
+				/>
+			</header>
 
-				<section>
-					<CodeEditor
-						initialValue={DEFAULT_CODE}
-						theme={theme}
-						onChange={handleCodeChange}
-					/>
-				</section>
+			<section>
+				<CodeEditor
+					initialValue={DEFAULT_CODE}
+					theme={theme}
+					onChange={handleCodeChange}
+				/>
+			</section>
 
-				<section>
-					<InputPanel value={stdin} onChange={setStdin} />
-				</section>
+			<section>
+				<InputPanel value={stdin} onChange={setStdin} />
+			</section>
 
-				<section class="grid">
-					<RunButton onClick={handleRun} state={state} />
-				</section>
+			<section class="grid">
+				<RunButton onClick={handleRun} state={state} />
+			</section>
 
-				<section>
-					<OutputPanel stdout={output.stdout} error={output.error} />
-				</section>
-			</div>
+			<section>
+				<OutputPanel stdout={output.stdout} error={output.error} />
+			</section>
 		</div>
 	);
 }
