@@ -1,11 +1,11 @@
-import { render } from "preact";
+import { hydrate } from "preact";
 import { App } from "./App";
 import "./index.css";
 
 function start() {
 	const root = document.getElementById("root");
 	if (root) {
-		render(<App />, root);
+		hydrate(<App />, root);
 	}
 }
 

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px;
+    height: 630px;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  .container {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+  }
+  .logo {
+    flex-shrink: 0;
+    width: 180px;
+    height: 180px;
+  }
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 72px;
+    font-weight: 700;
+    color: #f8fafc;
+    line-height: 1.1;
+  }
+  p {
+    font-size: 32px;
+    color: #94a3b8;
+  }
+  .badges {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .badge {
+    background: #3776AB;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <img class="logo" src="./logo.svg" alt="Your Python">
+    <div class="content">
+      <h1>Your Python</h1>
+      <p>Run Python in Your Browser</p>
+      <div class="badges">
+        <span class="badge">No Install</span>
+        <span class="badge">Browser-Based</span>
+        <span class="badge">Runs Locally</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,8 +1,11 @@
 #!/usr/bin/env bun
 import { existsSync } from "node:fs";
-import { rm } from "node:fs/promises";
+import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import plugin from "bun-plugin-tailwind";
+import { h } from "preact";
+import { render as renderToString } from "preact-render-to-string";
+import { App } from "./src/App";
 
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
 	console.log(`
@@ -125,6 +128,7 @@ if (existsSync(outdir)) {
 const start = performance.now();
 
 const entrypoints = [...new Bun.Glob("**.html").scanSync("src")]
+	.filter((a) => !a.includes("og-image"))
 	.map((a) => path.resolve("src", a))
 	.filter((dir) => !dir.includes("node_modules"));
 console.log(
@@ -156,3 +160,65 @@ console.table(outputTable);
 const buildTime = (end - start).toFixed(2);
 
 console.log(`\n✅ Build completed in ${buildTime}ms\n`);
+
+// --- Post-build: Pre-render ---
+const indexPath = path.join(outdir as string, "index.html");
+const html = await readFile(indexPath, "utf-8");
+const appHtml = renderToString(h(App, null));
+const withManifest = html.replace(
+	"</head>",
+	'    <link rel="manifest" href="./manifest.json" />\n  </head>',
+);
+const preRendered = withManifest.replace(
+	'<div id="root"></div>',
+	`<div id="root">${appHtml}</div>`,
+);
+await Bun.write(indexPath, preRendered);
+console.log("🖨️  Pre-rendered App into index.html");
+
+// --- Post-build: Static files ---
+const siteUrl = "https://hotaritobu.github.io/your-python/";
+
+await Bun.write(
+	path.join(outdir as string, "robots.txt"),
+	`User-agent: *\nAllow: /\nSitemap: ${siteUrl}sitemap.xml\n`,
+);
+
+await Bun.write(
+	path.join(outdir as string, "sitemap.xml"),
+	`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${siteUrl}</loc>
+  </url>
+</urlset>
+`,
+);
+
+await Bun.write(
+	path.join(outdir as string, "manifest.json"),
+	JSON.stringify(
+		{
+			name: "Your Python",
+			short_name: "Your Python",
+			description:
+				"A browser-based Python execution environment. Write and run Python code instantly — no installation required.",
+			start_url: "./",
+			display: "standalone",
+			background_color: "#f9fafb",
+			theme_color: "#3776AB",
+			icons: [{ src: "./logo.svg", sizes: "any", type: "image/svg+xml" }],
+		},
+		null,
+		2,
+	),
+);
+
+await Bun.write(
+	path.join(outdir as string, "og-image.png"),
+	await readFile(path.join("src", "og-image.png")),
+);
+
+console.log(
+	"📦 Generated robots.txt, sitemap.xml, manifest.json, og-image.png\n",
+);

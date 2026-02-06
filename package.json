@@ -18,6 +18,7 @@
 		"bun-plugin-tailwind": "^0.1.2",
 		"codemirror": "^6.0.2",
 		"preact": "^10.28.3",
+		"preact-render-to-string": "^6.6.5",
 		"tailwindcss": "^4.1.11"
 	},
 	"devDependencies": {
