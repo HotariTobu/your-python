@@ -165,7 +165,24 @@ console.log(`\n✅ Build completed in ${buildTime}ms\n`);
 const indexPath = path.join(outdir as string, "index.html");
 const html = await readFile(indexPath, "utf-8");
 const appHtml = renderToString(h(App, null));
-const withManifest = html.replace(
+const wasmOutput = result.outputs.find((o) => o.path.endsWith(".wasm"));
+if (wasmOutput) {
+	const wasmBytes = await readFile(wasmOutput.path);
+	const gzipped = Bun.gzipSync(wasmBytes);
+	await Bun.write(`${wasmOutput.path}.gz`, gzipped);
+	await rm(wasmOutput.path);
+	console.log(
+		`🗜️  Compressed WASM: ${formatFileSize(wasmBytes.length)} → ${formatFileSize(gzipped.length)}`,
+	);
+}
+const wasmGzName = wasmOutput ? `${path.basename(wasmOutput.path)}.gz` : null;
+const withPreload = wasmGzName
+	? html.replace(
+			"<head>\n",
+			`<head>\n    <link rel="preload" as="fetch" crossorigin href="./${wasmGzName}" />\n`,
+		)
+	: html;
+const withManifest = withPreload.replace(
 	"</head>",
 	'    <link rel="manifest" href="./manifest.json" />\n  </head>',
 );

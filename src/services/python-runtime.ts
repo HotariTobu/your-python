@@ -17,7 +17,16 @@ export async function initPythonRuntime(): Promise<void> {
 	if (initPromise) return initPromise;
 
 	initPromise = (async () => {
-		await init({ module_or_path: wasmUrl });
+		if (process.env.NODE_ENV === "production") {
+			const compressed = await fetch(`${wasmUrl}.gz`);
+			const decompressed = new Response(
+				compressed.body?.pipeThrough(new DecompressionStream("gzip")),
+				{ headers: { "Content-Type": "application/wasm" } },
+			);
+			await init({ module_or_path: decompressed });
+		} else {
+			await init({ module_or_path: wasmUrl });
+		}
 		initialized = true;
 	})();
 
