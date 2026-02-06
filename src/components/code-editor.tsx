@@ -3,15 +3,15 @@ import type { ResolvedTheme } from "../hooks/use-theme";
 
 export interface CodeEditorProps {
 	initialValue: string;
-	onChange: (value: string) => void;
 	theme: ResolvedTheme;
+	onChange: (value: string) => void;
 }
 
-export function CodeEditor({ initialValue, onChange, theme }: CodeEditorProps) {
+export function CodeEditor({ initialValue, theme, onChange }: CodeEditorProps) {
 	const { containerRef } = useCodeMirror({
 		initialValue,
-		onChange,
 		theme,
+		onChange,
 	});
 
 	return (

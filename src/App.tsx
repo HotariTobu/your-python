@@ -64,8 +64,8 @@ export function App() {
 				<section>
 					<CodeEditor
 						initialValue={DEFAULT_CODE}
-						onChange={handleCodeChange}
 						theme={theme}
+						onChange={handleCodeChange}
 					/>
 				</section>
 

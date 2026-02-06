@@ -10,8 +10,8 @@ import type { ResolvedTheme } from "./use-theme";
 
 export interface UseCodeMirrorOptions {
 	initialValue: string;
-	onChange: (value: string) => void;
 	theme: ResolvedTheme;
+	onChange: (value: string) => void;
 }
 
 export interface UseCodeMirrorResult {
@@ -34,6 +34,7 @@ export function useCodeMirror(
 	const containerRef = useRef<HTMLElement | null>(null);
 	const viewRef = useRef<EditorView | null>(null);
 	const themeCompartment = useRef(new Compartment());
+	const listenerCompartment = useRef(new Compartment());
 
 	useEffect(() => {
 		if (!containerRef.current || viewRef.current) return;
@@ -44,13 +45,8 @@ export function useCodeMirror(
 			indentUnit.of("    "),
 			autoHeightTheme,
 			keymap.of([indentWithTab]),
-			themeCompartment.current.of(editorTheme(options.theme)),
-			EditorView.updateListener.of((update) => {
-				if (update.docChanged) {
-					valueRef.current = update.state.doc.toString();
-					options.onChange(valueRef.current);
-				}
-			}),
+			themeCompartment.current.of([]),
+			listenerCompartment.current.of([]),
 		];
 
 		const state = EditorState.create({
@@ -67,13 +63,25 @@ export function useCodeMirror(
 			viewRef.current?.destroy();
 			viewRef.current = null;
 		};
-	}, [options.onChange]);
+	}, []);
 
 	useEffect(() => {
 		viewRef.current?.dispatch({
 			effects: themeCompartment.current.reconfigure(editorTheme(options.theme)),
 		});
 	}, [options.theme]);
+
+	useEffect(() => {
+		viewRef.current?.dispatch({
+			effects: listenerCompartment.current.reconfigure(
+				EditorView.updateListener.of((update) => {
+					if (update.docChanged) {
+						options.onChange(update.state.doc.toString());
+					}
+				}),
+			),
+		});
+	}, [options.onChange]);
 
 	return { containerRef };
 }
