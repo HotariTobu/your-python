@@ -195,19 +195,43 @@ await Bun.write(
 `,
 );
 
+const meta = (name: string) =>
+	html.match(
+		new RegExp(
+			`<meta\\s[^>]*(?:name|property)="${name}"[^>]*content="([^"]*)"`,
+		),
+	)?.[1] ??
+	html.match(
+		new RegExp(
+			`<meta\\s[^>]*content="([^"]*)"[^>]*(?:name|property)="${name}"`,
+		),
+	)?.[1];
+const title = html
+	.match(/<title>([^<]*)</)?.[1]
+	?.split(/\s*[-–|]\s*/)[0]
+	?.trim();
+const iconOutput = result.outputs.find((o) => /logo.*\.svg$/.test(o.path));
+
 await Bun.write(
 	path.join(outdir as string, "manifest.json"),
 	JSON.stringify(
 		{
-			name: "Your Python",
-			short_name: "Your Python",
-			description:
-				"A browser-based Python execution environment. Write and run Python code instantly — no installation required.",
+			name: title,
+			short_name: title,
+			description: meta("description"),
 			start_url: "./",
 			display: "standalone",
 			background_color: "#f9fafb",
-			theme_color: "#3776AB",
-			icons: [{ src: "./logo.svg", sizes: "any", type: "image/svg+xml" }],
+			theme_color: meta("theme-color"),
+			icons: iconOutput
+				? [
+						{
+							src: `./${path.basename(iconOutput.path)}`,
+							sizes: "any",
+							type: "image/svg+xml",
+						},
+					]
+				: [],
 		},
 		null,
 		2,
